@@ -1,0 +1,47 @@
+@import '_forms';
+@import "vendor/bootstrap/functions";
+@import "vendor/bootstrap/variables";
+@import "vendor/bootstrap/mixins";
+
+.btn-add, .search-submit {
+    margin-top: 10px;
+}
+
+.formContainer {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    display: inline;
+}
+
+@include media-breakpoint-up(sm) {
+    .breadcrumb {
+        display: flex;
+    }
+}
+
+.admin__control-table-wrapper {
+    display: inline-block;
+}
+
+.formContainer {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    display: inline;
+}
+
+.message.notice {
+    display: none;
+}
+
+@include media-breakpoint-up(sm) {
+    .breadcrumb {
+        display: flex;
+    }
+}
+
