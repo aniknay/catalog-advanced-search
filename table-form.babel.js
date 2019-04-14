@@ -92,7 +92,7 @@ define([
 
         addPeriodDateBlock: function (cell, className){
             className = className || '';
-            const $wrapper = $('<div class="options-data  '+ className +' "/>');
+            const $wrapper = $('<div class="period-data options-data  '+ className +' "/>');
 
             const $inputFrom = $('<input type="text" class="js-calendar options__input required-entry form-control" name="created_at"  autocomplete="off" aria-required="true" >');
             $inputFrom.appendTo($wrapper);
