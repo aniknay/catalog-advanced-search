@@ -173,21 +173,27 @@ define([
      * @returns {{field: *, condition_type: *, value: *}}
      */
     function getRowData(row) {
+        const $valueElement = row.find('.search-value');
+
         const field = row.find('.attributeName').val();
-        const condition_type = row.find('.condition').val();
-        let $valueElement = row.find('.search-value');
-        if (($valueElement).is('div')) {
-            $valueElement = $valueElement.find('.js-calendar');
-        }
+        const conditionType = row.find('.condition').val();
         const value = $valueElement.val();
+
         const data = {
             field: field,
             value: value,
-            condition_type: condition_type
+            condition_type: conditionType
         };
-        if ($valueElement.length > 1) {
-            data.value = [value, $valueElement.last().val()];
+
+        //element is Date-block
+        if (($valueElement).hasClass('options-data')) {
+            const $calendarInput = $valueElement.find('.js-calendar');
+            data.value = $calendarInput.val();
+            if (($valueElement).hasClass('period-data')) {
+                data.value = [data.value, $calendarInput.last().val()];
+            }
         }
+
         return data;
     }
 
@@ -198,19 +204,20 @@ define([
      */
     function setRowData(row, currentRowData) {
         const $fieldEl = row.find('.attributeName');
-        const $condition_typeEl = row.find('.condition');
-        let $valueElement = row.find('.search-value');
-        if (($valueElement).is('div')) {
-            $valueElement = $valueElement.find('.js-calendar');
-        }
+        const $conditionTypeEl = row.find('.condition');
+        const $valueElement = row.find('.search-value');
 
         $fieldEl.val(currentRowData.field);
-        $condition_typeEl.val(currentRowData.condition_type);
+        $conditionTypeEl.val(currentRowData.condition_type);
         $valueElement.val(currentRowData.value);
 
-        if ($valueElement.length > 1) {
-            $valueElement.val(currentRowData.value[0]);
-            $valueElement.last().val(currentRowData.value[1]);
+        if (($valueElement).hasClass('options-data')) {
+            const $calendarInput = $valueElement.find('.js-calendar');
+            $calendarInput.val(currentRowData.value);
+            if (($valueElement).hasClass('period-data')) {
+                $calendarInput.val(currentRowData.value[0]);
+                $calendarInput.last().val(currentRowData.value[1]);
+            }
         }
     }
 
@@ -229,13 +236,13 @@ define([
          */
         $fieldNameSelector.on('change', function (e) {
             const selectedId = $(e.target).find(':selected').attr('id');
-            const condition_types = categorySet[selectedId].condition_types;
+            const conditionTypes = categorySet[selectedId].condition_types;
 
             const $condition = row.find('.condition');
-            const $valueCell = $(e.target).parent().next().next();
+            const $valueCell = $(e.target).parent().parent().find('.search-value');
 
-            $condition.trigger('changed:fieldName', [selectedId, condition_types]);
-            $valueCell.trigger('changed:fieldName', [selectedId, condition_types]);
+            $condition.trigger('changed:fieldName', [selectedId, conditionTypes]);
+            $valueCell.trigger('changed:fieldName', [selectedId, conditionTypes]);
 
         });
 
@@ -288,11 +295,10 @@ define([
             $currentRow.after($newRow);
 
             // Search and re-initialization of calendars in a new row
-            const calendars = $newRow.find('.js-calendar');
-            const calendarsCount = calendars.length;
-            const cell = calendars.parent().parent();
+            const calendarBlock = $newRow.find('.options-data');
+            const cell = calendarBlock.parent();
             cell.empty();
-            if (calendarsCount > 1) {
+            if(calendarBlock.hasClass('period-data')){
                 tableForm.addPeriodDateBlock(cell, 'search-value');
             }
             else tableForm.addDateBlock(cell, 'search-value');
@@ -491,9 +497,11 @@ define([
         const $form = $(el);
 
         $form.on('submit', function (ev) {
+            console.log("-----");
             ev.preventDefault();
 
             const formData = $form.serializeArray();
+            console.log(formData);
             const searchCriteria = createQuery(formData);
 
             sendQuery(url, searchCriteria);
